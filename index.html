@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Aayushi, Will You Be My Valentine?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at 20% 20%, #ff7eb6 0%, #ff3666 30%, #180018 100%);
+      --card: rgba(255, 255, 255, 0.14);
+      --accent: #ffdae7;
+      --text: #ffeef7;
+      --btn: #0f0f1a;
+      --btn-border: #ffb3d1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      overflow: hidden;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(600px circle at 10% 20%, rgba(255, 255, 255, 0.09), transparent 35%),
+                  radial-gradient(500px circle at 90% 10%, rgba(255, 196, 235, 0.1), transparent 30%),
+                  radial-gradient(700px circle at 50% 80%, rgba(255, 68, 122, 0.09), transparent 40%);
+      pointer-events: none;
+      filter: blur(3px);
+      z-index: 0;
+    }
+    main {
+      width: min(960px, 92vw);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.45);
+      border-radius: 28px;
+      padding: clamp(1.8rem, 3vw, 3rem);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      font-family: 'Playfair Display', 'Space Grotesk', serif;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      margin: 0 0 0.35em;
+      letter-spacing: 0.02em;
+      min-height: 1.3em;
+    }
+    p {
+      margin: 0 0 1.6rem;
+      max-width: 70ch;
+      line-height: 1.6;
+      color: #fbe9f3;
+    }
+    .actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      position: relative;
+      min-height: 70px;
+    }
+    .speak {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+    }
+    .speak:hover {
+      transform: translateY(-2px);
+    }
+    button {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      border: 2px solid var(--btn-border);
+      background: var(--btn);
+      color: var(--accent);
+      padding: 0.85rem 1.6rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    }
+    button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45);
+      border-color: #ffe6f1;
+    }
+    #noBtn {
+      position: absolute;
+      top: 0;
+      left: 120px;
+      will-change: transform;
+      transition: transform 120ms cubic-bezier(0.33, 1.2, 0.68, 1);
+    }
+    #yesBtn {
+      z-index: 2;
+      background: linear-gradient(120deg, #0f0f1a, #1a0f1f 50%, #0f0f1a);
+      color: #ffeaf4;
+      transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    }
+    #yesBtn.pulse {
+      transform: scale(1.06);
+      box-shadow: 0 18px 55px rgba(255, 160, 210, 0.35);
+      filter: drop-shadow(0 0 12px rgba(255, 160, 210, 0.6));
+    }
+    .meme-frame {
+      margin-top: 1.8rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px dashed rgba(255, 255, 255, 0.35);
+      border-radius: 18px;
+      padding: 0.75rem;
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      display: none;
+    }
+    .meme-frame img {
+      max-width: 100%;
+      border-radius: 14px;
+      display: block;
+      object-fit: cover;
+      filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.4));
+    }
+    .hint {
+      opacity: 0.8;
+      font-size: 0.95rem;
+      margin-top: 0.6rem;
+      color: #ffe0ef;
+    }
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    @media (max-width: 560px) {
+      .actions { min-height: 120px; }
+      #noBtn { left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx"></canvas>
+  <div class="glow"></div>
+  <main>
+    <h1 id="title"></h1>
+    <button class="speak" id="speakBtn" aria-label="Play the question aloud">🔊 Tap to hear it</button>
+    <p>
+      I promise movie nights, surprise dessert runs, and unlimited memes tailored just for you.
+      There is, however, only one acceptable answer…
+    </p>
+    <div class="actions">
+      <button id="yesBtn">Yes! 💖</button>
+      <button id="noBtn">Nope</button>
+    </div>
+    <div class="meme-frame" id="memeFrame">
+      <img src="IMG_6658.JPG" alt="Our photo">
+    </div>
+    <div class="hint">Photo appears after she hits “Yes”.</div>
+  </main>
+
+  <script>
+    // Make the "No" button slippery.
+    const noBtn = document.getElementById('noBtn');
+    const yesBtn = document.getElementById('yesBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const title = document.getElementById('title');
+    const container = document.querySelector('.actions');
+    const memeFrame = document.getElementById('memeFrame');
+    const fx = document.getElementById('fx');
+    const ctx = fx.getContext('2d');
+    let w, h, particles = [], ticking = false;
+    const question = 'Aayushi, will you be my Valentine?';
+
+    // Typewriter reveal for the headline.
+    (function typeTitle(){
+      let i = 0;
+      title.textContent = '';
+      function tick() {
+        title.textContent = question.slice(0, i);
+        i++;
+        if (i <= question.length) requestAnimationFrame(tick);
+      }
+      tick();
+    })();
+
+    function resize() {
+      w = fx.width = window.innerWidth;
+      h = fx.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function randomPos(triggerPulse = true) {
+      const pad = 10;
+      const x = Math.random() * (container.clientWidth - noBtn.offsetWidth - pad) + pad / 2;
+      const y = Math.random() * (container.clientHeight - noBtn.offsetHeight - pad) + pad / 2;
+      noBtn.style.transform = `translate(${x}px, ${y}px) rotate(${(Math.random()*12-6).toFixed(1)}deg)`;
+      if (triggerPulse) {
+        yesBtn.classList.add('pulse');
+        setTimeout(() => yesBtn.classList.remove('pulse'), 220);
+      }
+    }
+    randomPos(false);
+    ['mouseenter', 'click', 'touchstart', 'pointermove'].forEach(evt => {
+      noBtn.addEventListener(evt, () => randomPos(true));
+    });
+
+    function speakLine(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.rate = 0.95;
+      msg.pitch = 1.05;
+      msg.lang = 'en-US';
+      // pick a female-ish voice if present (iOS often has "Samantha").
+      const voices = speechSynthesis.getVoices();
+      const prefer = voices.find(v => /Samantha|female/i.test(v.name));
+      if (prefer) msg.voice = prefer;
+      window.speechSynthesis.speak(msg);
+    }
+
+    speakBtn.addEventListener('click', () => speakLine(question));
+
+    // Firecracker particles on "Yes".
+    function addBurst(x, y) {
+      for (let i = 0; i < 60; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 6 + 2;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 60 + Math.random() * 20,
+          color: `hsl(${Math.random() * 40 + 330}, 80%, 70%)`
+        });
+      }
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    function update() {
+      ctx.clearRect(0, 0, w, h);
+      particles = particles.filter(p => p.life > 0);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.04; // gravity
+        p.life--;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      if (particles.length) {
+        requestAnimationFrame(update);
+      } else {
+        ticking = false;
+      }
+    }
+
+    yesBtn.addEventListener('click', e => {
+      const { clientX, clientY } = e;
+      addBurst(clientX, clientY);
+      const burstInterval = setInterval(() => {
+        addBurst(Math.random() * w, Math.random() * h * 0.8);
+      }, 150);
+      setTimeout(() => clearInterval(burstInterval), 3200);
+      yesBtn.textContent = 'Yay! 🎆';
+      yesBtn.disabled = true;
+      yesBtn.style.opacity = '0.9';
+      memeFrame.style.display = 'grid';
+    });
+  </script>
+</body>
+</html>

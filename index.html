@@ -124,23 +124,25 @@
       filter: drop-shadow(0 0 12px rgba(255, 160, 210, 0.6));
     }
     .meme-frame {
-      margin-top: 1.8rem;
-      background: rgba(255, 255, 255, 0.06);
+      margin: 0 auto 1.4rem;
+      width: min(260px, 75vw);
+      background: rgba(255, 255, 255, 0.08);
       border: 1px dashed rgba(255, 255, 255, 0.35);
-      border-radius: 18px;
-      padding: 0.75rem;
+      border-radius: 16px;
+      padding: 0.6rem;
       display: grid;
       place-items: center;
-      min-height: 220px;
-      display: none;
+      gap: 0.4rem;
     }
-    .meme-frame img {
-      max-width: 100%;
-      border-radius: 14px;
+    .meme-frame img, .meme-frame iframe, .meme-frame video {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
       display: block;
       object-fit: cover;
-      filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.4));
+      filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.35));
     }
+    .hidden { display: none !important; }
     .hint {
       opacity: 0.8;
       font-size: 0.95rem;
@@ -163,22 +165,33 @@
   <canvas id="fx"></canvas>
   <div class="glow"></div>
   <main>
+    <div class="meme-frame" id="memeFrame">
+      <img id="photo" src="IMG_6658.JPG" alt="Our photo">
+      <div id="meme" class="hidden">
+        <iframe
+          src="https://tenor.com/embed/11411674"
+          title="Oh My God GIF"
+          style="border:0; width:100%; aspect-ratio:1/1;"
+          allowfullscreen
+          loading="lazy">
+        </iframe>
+        <a href="https://tenor.com/view/omg-oh-my-god-wow-gif-11411674" style="color:#ffeef7; font-size:0.85rem; text-decoration:none;">Open in Tenor</a>
+      </div>
+    </div>
     <h1 id="title"></h1>
     <button class="speak" id="speakBtn" aria-label="Play the question aloud">🔊 Tap to hear it</button>
     <p>
-      I promise movie nights, surprise dessert runs, and unlimited memes tailored just for you.
-      There is, however, only one acceptable answer…
+      I promise night drives, surprise trips, and unlimited love just for you.
+      There is, however, only one acceptable answer… 🥹
     </p>
     <div class="actions">
       <button id="yesBtn">Yes! 💖</button>
       <button id="noBtn">Nope</button>
     </div>
-    <div class="meme-frame" id="memeFrame">
-      <img src="IMG_6658.JPG" alt="Our photo">
-    </div>
-    <div class="hint">Photo appears after she hits “Yes”.</div>
   </main>
 
+  <audio id="song" src="Dil%20Laga%20Liya%20Maine%20Tumse%20Pyaar%20Karke(KoshalWorld.Com).mp3" preload="auto"></audio>
+  <script type="text/javascript" async src="https://tenor.com/embed.js"></script>
   <script>
     // Make the "No" button slippery.
     const noBtn = document.getElementById('noBtn');
@@ -187,6 +200,9 @@
     const title = document.getElementById('title');
     const container = document.querySelector('.actions');
     const memeFrame = document.getElementById('memeFrame');
+    const photo = document.getElementById('photo');
+    const meme = document.getElementById('meme');
+    const song = document.getElementById('song');
     const fx = document.getElementById('fx');
     const ctx = fx.getContext('2d');
     let w, h, particles = [], ticking = false;
@@ -221,9 +237,14 @@
         setTimeout(() => yesBtn.classList.remove('pulse'), 220);
       }
     }
-    randomPos(false);
-    ['mouseenter', 'click', 'touchstart', 'pointermove'].forEach(evt => {
-      noBtn.addEventListener(evt, () => randomPos(true));
+    // Start the "No" button next to "Yes" before it gets slippery.
+    noBtn.style.transform = `translate(${yesBtn.offsetWidth + 16}px, 0px)`;
+    const dodgeEvents = ['mouseenter', 'pointerenter', 'pointermove', 'pointerdown', 'touchstart', 'touchmove', 'click'];
+    dodgeEvents.forEach(evt => {
+      noBtn.addEventListener(evt, (e) => {
+        e.preventDefault();
+        randomPos(true);
+      }, { passive: false });
     });
 
     function speakLine(text) {
@@ -281,17 +302,36 @@
       }
     }
 
+    let fireworksLoop = null;
+
     yesBtn.addEventListener('click', e => {
       const { clientX, clientY } = e;
       addBurst(clientX, clientY);
-      const burstInterval = setInterval(() => {
-        addBurst(Math.random() * w, Math.random() * h * 0.8);
-      }, 150);
-      setTimeout(() => clearInterval(burstInterval), 3200);
+      if (!fireworksLoop) {
+        fireworksLoop = setInterval(() => {
+          addBurst(Math.random() * w, Math.random() * h * 0.8);
+        }, 220);
+      }
       yesBtn.textContent = 'Yay! 🎆';
       yesBtn.disabled = true;
       yesBtn.style.opacity = '0.9';
-      memeFrame.style.display = 'grid';
+      photo.classList.add('hidden');
+      photo.style.display = 'none';
+      meme.classList.remove('hidden');
+      meme.style.display = 'block';
+      if (song) {
+        const startAt = 22;
+        const playSong = () => {
+          song.currentTime = startAt;
+          song.play().catch(() => {});
+        };
+        if (song.readyState >= 1) {
+          playSong();
+        } else {
+          song.addEventListener('loadedmetadata', playSong, { once: true });
+          song.load();
+        }
+      }
     });
   </script>
 </body>
